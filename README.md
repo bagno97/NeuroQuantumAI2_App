@@ -1,1 +1,0 @@
-# NeuroQuantumAI2_App
