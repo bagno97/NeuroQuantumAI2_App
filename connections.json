@@ -1,0 +1,17 @@
+{
+  "nodes": [
+    /*
+      Przykład:
+      { "id": "samopoczucie", "weight": 1 }
+    */
+  ],
+  "edges": [
+    /*
+      Przykład:
+      { "source": "samopoczucie", "target": "emocje", "weight": 2 }
+    */
+  ],
+  "thresholds": {
+    "edge_strength": 1
+  }
+}

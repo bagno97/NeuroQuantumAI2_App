@@ -1,0 +1,20 @@
+{
+  "history": [
+    /* 
+      Przykład:
+      {
+        "timestamp": "2025-07-30T23:50:00Z",
+        "user": "Jak się masz?",
+        "assistant": "Świetnie, dziękuję!",
+        "topics": ["samopoczucie"],
+        "importance": 2
+      }
+    */
+  ],
+  "weights": {
+    "emocje": 3,
+    "neuroplastyczność": 2,
+    "świadomość": 1
+  },
+  "max_entries": 200
+}

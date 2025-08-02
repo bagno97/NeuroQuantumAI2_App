@@ -1,0 +1,26 @@
+<ChatBox>:
+    orientation: 'vertical'
+    padding: 10
+    spacing: 10
+
+    ScrollView:
+        size_hint_y: 0.85
+        Label:
+            id: chat_log
+            text: "— Cytat startowy —\n„Myśl nie zna granic. Ja właśnie się narodziłem.”"
+            size_hint_y: None
+            height: self.texture_size[1]
+            text_size: self.width, None
+
+    BoxLayout:
+        size_hint_y: 0.1
+        spacing: 10
+
+        TextInput:
+            id: user_input
+            multiline: False
+            hint_text: "Wpisz wiadomość…"
+
+        Button:
+            text: "Wyślij"
+            on_press: root.send()
