@@ -1,47 +1,34 @@
-name: Build NeuroQuantumAI_App APK
+name: Build APK
 
 on:
   push:
     branches:
       - main
+  pull_request:
 
 jobs:
   build:
-    name: Build APK
+    name: Build Android APK
     runs-on: ubuntu-latest
 
-    env:
-      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-      KEYALIAS_PASSWORD: ${{ secrets.KEYALIAS_PASSWORD }}
-
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
         with:
-          python-version: '3.10'
+          distribution: 'temurin'
+          java-version: '17'
 
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y build-essential libssl-dev libffi-dev python3-dev \
-            libsqlite3-dev libjpeg-dev libpng-dev libfreetype6-dev libgl1-mesa-dev \
-            libgles2-mesa-dev libgstreamer1.0 libgstreamer-plugins-base1.0 \
-            openjdk-17-jdk unzip zip git
-
-      - name: Install Buildozer
-        run: |
-          pip install --upgrade pip
-          pip install buildozer
+      - name: Grant execute permission to gradlew
+        run: chmod +x ./gradlew
 
       - name: Build APK
-        run: |
-          buildozer android release
+        run: ./gradlew assembleRelease
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v3
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
         with:
           name: NeuroQuantumAI_App-release
-          path: bin/*.apk
+          path: app/build/outputs/apk/release/*.apk
