@@ -17,6 +17,18 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+        - name: Install Android SDK + Build-Tools
+  run: |
+    export ANDROID_SDK_ROOT="$HOME/.buildozer/android/platform/android-sdk"
+    mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
+    cd "$ANDROID_SDK_ROOT/cmdline-tools"
+    wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+    unzip -q commandlinetools-linux-9477386_latest.zip
+    mv cmdline-tools latest
+    yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+      --sdk_root="$ANDROID_SDK_ROOT" \
+      "platform-tools" "build-tools;33.0.2" "platforms;android-33"
+    yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses
 
       - name: Set up Python
         uses: actions/setup-python@v4
