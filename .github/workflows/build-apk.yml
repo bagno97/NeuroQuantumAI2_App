@@ -1,34 +1,49 @@
-name: Build APK
+name: Build NeuroQuantumAI_App APK
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
-    name: Build Android APK
+    name: Build APK
     runs-on: ubuntu-latest
 
+    env:
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEYALIAS_PASSWORD: ${{ secrets.KEYALIAS_PASSWORD }}
+
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          python-version: '3.10'
 
-      - name: Grant execute permission to gradlew
-        run: chmod +x ./gradlew
+      - name: Install system dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential libssl-dev libffi-dev python3-dev \
+            libsqlite3-dev libjpeg-dev libpng-dev openjdk-17-jdk unzip zip git
 
-      - name: Build APK
-        run: ./gradlew assembleRelease
+      - name: Install Buildozer
+        run: |
+          pip install --upgrade pip
+          pip install buildozer cython
+
+      - name: Build APK with Buildozer
+        env:
+          ANDROID_SDK_ROOT: $HOME/.buildozer/android/platform/android-sdk
+          ANDROIDNDK_HOME: $HOME/.buildozer/android/platform/android-ndk/android-ndk-r24b
+          ANDROID_NDK_HOME: $HOME/.buildozer/android/platform/android-ndk/android-ndk-r24b
+        run: |
+          buildozer android release
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: NeuroQuantumAI_App-release
-          path: app/build/outputs/apk/release/*.apk
+          path: bin/*.apk
