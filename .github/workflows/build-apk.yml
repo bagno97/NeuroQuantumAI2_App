@@ -1,72 +1,47 @@
-name: Build NeuroQuantumAI APK
+name: Build NeuroQuantumAI_App APK
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
   build:
+    name: Build APK
     runs-on: ubuntu-latest
 
+    env:
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEYALIAS_PASSWORD: ${{ secrets.KEYALIAS_PASSWORD }}
+
     steps:
-      - name: 🧾 Checkout repo
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: 🐍 Set up Python
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: 🛠️ Install system dependencies
+      - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y zip unzip openjdk-11-jdk python3-pip build-essential wget \
-            libffi-dev libssl-dev libncurses5-dev libsqlite3-dev libjpeg-dev \
-            zlib1g-dev libpng-dev libbz2-dev
+          sudo apt install -y build-essential libssl-dev libffi-dev python3-dev \
+            libsqlite3-dev libjpeg-dev libpng-dev libfreetype6-dev libgl1-mesa-dev \
+            libgles2-mesa-dev libgstreamer1.0 libgstreamer-plugins-base1.0 \
+            openjdk-17-jdk unzip zip git
 
-      - name: 📦 Install Python dependencies
+      - name: Install Buildozer
         run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install buildozer cython
+          pip install --upgrade pip
+          pip install buildozer
 
-      - name: ⬇️ Install Android SDK + Build-Tools
+      - name: Build APK
         run: |
-          export ANDROID_SDK_ROOT="$HOME/.buildozer/android/platform/android-sdk"
-          mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
-          cd "$ANDROID_SDK_ROOT/cmdline-tools"
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
-          unzip -q commandlinetools-linux-9477386_latest.zip
-          mv cmdline-tools latest
-          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
-            --sdk_root="$ANDROID_SDK_ROOT" \
-            "platform-tools" "build-tools;33.0.2" "platforms;android-33"
+          buildozer android release
 
-      - name: 🔗 Fix sdkmanager path
-        run: |
-          mkdir -p "$HOME/.buildozer/android/platform/android-sdk/tools/bin"
-          ln -s "$HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager" \
-                "$HOME/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager"
-
-      - name: ⬇️ Pre-download Android NDK (r26c)
-        run: |
-          export ANDROID_NDK_ROOT="$HOME/.buildozer/android/platform/android-ndk"
-          mkdir -p "$ANDROID_NDK_ROOT"
-          cd "$HOME/.buildozer/android/platform"
-          wget -q https://dl.google.com/android/repository/android-ndk-r26c-linux.zip
-          unzip -q android-ndk-r26c-linux.zip
-          mv android-ndk-r26c "$ANDROID_NDK_ROOT/android-ndk-r24b"
-
-      - name: 🔨 Build APK with Buildozer
-        env:
-          ANDROID_SDK_ROOT: $HOME/.buildozer/android/platform/android-sdk
-          ANDROIDNDK_HOME: $HOME/.buildozer/android/platform/android-ndk/android-ndk-r24b
-          ANDROID_NDK_HOME: $HOME/.buildozer/android/platform/android-ndk/android-ndk-r24b
-        run: |
-          buildozer android debug
-
-      - name: 📤 Upload APK artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
         with:
-          name: NeuroQuantumAI2_App
+          name: NeuroQuantumAI_App-release
           path: bin/*.apk
