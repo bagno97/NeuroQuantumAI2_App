@@ -29,8 +29,8 @@ orientation = portrait
 fullscreen = 1
 android.theme = @android:style/Theme.Material.Light.DarkActionBar
 
-# Wymagania Python/Kivy
-requirements = python3,kivy==2.1.0,kivymd,requests,pillow,certifi,urllib3,chardet,idna,setuptools
+# Wymagania Python/Kivy + libffi
+requirements = python3,kivy==2.1.0,kivymd,requests,pillow,certifi,urllib3,chardet,idna,setuptools,libffi
 
 # Bootstrap SDL2
 p4a.bootstrap = sdl2
@@ -59,3 +59,7 @@ android.keyalias_password = __WSTAW_HASLO__
 # Debugowanie
 log_level = 2
 debug = 0
+
+[buildozer]
+use_system_libs = True
+warn_on_root = 1
