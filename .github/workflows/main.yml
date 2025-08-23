@@ -9,29 +9,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-      KEYALIAS_PASSWORD: ${{ secrets.KEYALIAS_PASSWORD }}
-
     steps:
-    - name: 📥 Checkout repo
+    - name: Checkout repo
       uses: actions/checkout@v3
 
-    - name: 🐍 Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-
-    - name: 📦 Install system dependencies (with libffi-dev)
+    - name: Install system dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y unzip openjdk-17-jdk git \
           autoconf automake libtool m4 gettext texinfo \
-          build-essential libffi-dev libssl-dev libjpeg-dev libpng-dev libsqlite3-dev
+          build-essential libffi-dev libssl-dev libjpeg-dev \
+          libpng-dev libsqlite3-dev
         python -m pip install --upgrade pip
         pip install buildozer cython
 
-    - name: 📥 Install Android SDK + Build-Tools
+    - name: Install Android SDK + Build-Tools
       run: |
         mkdir -p $HOME/.buildozer/android/platform
         cd $HOME/.buildozer/android/platform
@@ -43,13 +35,13 @@ jobs:
         yes | android-sdk/cmdline-tools/latest/bin/sdkmanager \
           "platform-tools" "build-tools;34.0.0" "platforms;android-33"
 
-    - name: 🔧 Fix sdkmanager path for Buildozer
+    - name: Fix sdkmanager path
       run: |
         mkdir -p $HOME/.buildozer/android/platform/android-sdk/tools/bin
         ln -s $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager \
               $HOME/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
 
-    - name: 📥 Download Android NDK r23b
+    - name: Download Android NDK r23b
       run: |
         mkdir -p $HOME/.buildozer/android/platform/android-ndk
         cd $HOME/.buildozer/android/platform
@@ -57,17 +49,15 @@ jobs:
         unzip -q android-ndk-r23b-linux.zip
         mv android-ndk-r23b android-ndk/android-ndk-r23b
 
-    - name: 🏗️ Build APK with Buildozer (using system libffi)
+    - name: Build APK
       env:
         ANDROIDSDK: $HOME/.buildozer/android/platform/android-sdk
         ANDROIDNDK: $HOME/.buildozer/android/platform/android-ndk/android-ndk-r23b
         ANDROID_NDK_HOME: $HOME/.buildozer/android/platform/android-ndk/android-ndk-r23b
         ANDROID_SDK_ROOT: $HOME/.buildozer/android/platform/android-sdk
-        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-        KEYALIAS_PASSWORD: ${{ secrets.KEYALIAS_PASSWORD }}
       run: buildozer android release
 
-    - name: 📤 Upload APK artifact
+    - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: NeuroQuantumAI-release
