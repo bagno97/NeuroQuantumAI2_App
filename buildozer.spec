@@ -1,65 +1,46 @@
 [app]
-# Metadane aplikacji
-title = NeuroQuantumAI_App
+# Nazwa wyświetlana w systemie
+title = NeuroQuantumAI
+# Nazwa paczki w kodzie i w Android Manifest
 package.name = neuroquantumai
-package.domain = org.konrad
-version = 1.0.0
-version.code = 100
-
-# Źródła i zasoby
+package.domain = org.example
+# Główne źródła aplikacji
 source.dir = .
-source.main = main.py
-
-# Ikona i ekran startowy
-icon.filename = %(source.dir)s/dane/icon.png
-presplash.filename = %(source.dir)s/dane/splash.png
-presplash.animation = True
-presplash.fullscreen = True
-
-# Rozszerzenia i zasoby
-include_exts = py,png,jpg,kv,atlas,json,ttf,ini,txt,md
-copy_to_apk = True
-android.add_assets = %(source.dir)s/assets
-android.add_src = %(source.dir)s/dane
-android.add_resources = %(source.dir)s/fonts
-android.extra_manifest_xml = %(source.dir)s/dane/manifest.xml
-
-# UI i wygląd
+# Jakie rozszerzenia dołączać do pakietu
+source.include_exts = py,png,jpg,kv,atlas
+# Wersja aplikacji
+version = 1.0
+# Wymagane biblioteki — usuwamy libffi
+requirements = python3,kivy==2.1.0,kivymd,requests,pillow,certifi,urllib3,chardet,idna,setuptools
+# Orientacja ekranu
 orientation = portrait
-fullscreen = 1
-android.theme = @android:style/Theme.Material.Light.DarkActionBar
+# Ikony (opcjonalnie zmień ścieżki)
+icon.filename = %(source.dir)s/data/icon.png
 
-# Wymagania Python/Kivy + libffi
-requirements = python3,kivy==2.1.0,kivymd,requests,pillow,certifi,urllib3,chardet,idna,setuptools,libffi
+# Uprawnienia Androida — dodawaj w razie potrzeby
+android.permissions = INTERNET
 
-# Bootstrap SDL2
-p4a.bootstrap = sdl2
-
-# Uprawnienia Androida
-android.permissions = INTERNET,CAMERA,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE,VIBRATE,ACCESS_FINE_LOCATION
-android.features = gps,camera
-android.hardware = touchscreen,multitouch
-android.allow_backup = True
-android.private_storage = True
-
-# Architektury i API
-android.archs = armeabi-v7a,arm64-v8a
+# Minimalna wersja Android API
 android.minapi = 21
-android.api = 33
-android.build_tools_version = 34.0.0
+android.sdk = 33
+android.ndk = 25b
+android.ndk_api = 21
 
-# Podpisywanie aplikacji
-android.release = True
-android.sign = True
-android.keystore = %(source.dir)s/konrad.keystore
-android.keyalias = konradkey
-android.keystore_password = __WSTAW_HASLO__
-android.keyalias_password = __WSTAW_HASLO__
+# Obsługiwane architektury
+android.archs = armeabi-v7a, arm64-v8a
 
-# Debugowanie
-log_level = 2
-debug = 0
+# Możesz wyłączyć presplash albo ustawić własny
+# presplash.filename = %(source.dir)s/data/presplash.png
 
 [buildozer]
-use_system_libs = True
+log_level = 2
 warn_on_root = 1
+# Kluczowa zmiana: korzystamy z bibliotek systemowych
+use_system_libs = True
+
+[app:source.exclude_patterns]
+# Możesz dodać wzorce plików do wykluczenia z builda
+# np. tests/*, docs/*
+
+[app:source.include_patterns]
+# Możesz wymusić dołączenie plików, które normalnie byłyby pominięte
