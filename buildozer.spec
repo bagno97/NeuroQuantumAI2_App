@@ -1,29 +1,31 @@
 [app]
+# --- Podstawowe informacje o aplikacji ---
 title = NeuroQuantumAI
 package.name = neuroquantumai
 package.domain = org.konrad
 source.dir = .
-source.include_exts = py,png,jpg,kv,atlas,json,ttf,ini,txt,md
-version = 1.0.0
-
-# Kluczowe: libffi usunięte z listy
-requirements = python3,kivy==2.1.0,kivymd,requests,pillow,certifi,urllib3,chardet,idna,setuptools
-
+source.include_exts = py,png,jpg,kv,atlas
+version = 1.0
 orientation = portrait
-fullscreen = 1
+fullscreen = 0
 
-android.permissions = INTERNET,CAMERA,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE,VIBRATE,ACCESS_FINE_LOCATION
-android.api = 33
+# --- Wymagania Pythona i bibliotek ---
+requirements = python3,kivy==2.1.0,kivymd,requests,pillow,certifi,urllib3,chardet,idna,setuptools
+# Uwaga: brak libffi w tej liście!
+
+# --- Android: architektury i API ---
+archs = armeabi-v7a, arm64-v8a
+android.api = 31
+ndk.api = 23
 android.minapi = 21
-android.archs = armeabi-v7a,arm64-v8a
-android.build_tools_version = 34.0.0
-android.release = True
-android.sign = True
 
-icon.filename = %(source.dir)s/dane/icon.png
-presplash.filename = %(source.dir)s/dane/splash.png
-presplash.animation = True
-presplash.fullscreen = True
+# --- Inne ustawienia ---
+osx.python_version = 3
+osx.kivy_version = 1.9.1
+
+# Możesz tu dodać inne opcje aplikacji, np. ikony:
+# icon.filename = %(source.dir)s/data/icon.png
+
 
 [buildozer]
 log_level = 2
