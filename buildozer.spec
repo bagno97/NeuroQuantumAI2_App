@@ -1,31 +1,32 @@
 [app]
-# --- Podstawowe informacje o aplikacji ---
 title = NeuroQuantumAI
 package.name = neuroquantumai
 package.domain = org.konrad
 source.dir = .
-source.include_exts = py,png,jpg,kv,atlas
-version = 1.0
-orientation = portrait
-fullscreen = 0
+source.include_exts = py,png,jpg,kv,atlas,json,ttf,ini,txt,md
+version = 1.0.0
 
-# --- Wymagania Pythona i bibliotek ---
 requirements = python3,kivy==2.1.0,kivymd,requests,pillow,certifi,urllib3,chardet,idna,setuptools
-# Uwaga: brak libffi w tej liście!
 
-# --- Android: architektury i API ---
-archs = armeabi-v7a, arm64-v8a
-android.api = 31
-ndk.api = 23
+orientation = portrait
+fullscreen = 1
+
+icon.filename = %(source.dir)s/dane/icon.png
+presplash.filename = %(source.dir)s/dane/splash.png
+presplash.animation = True
+presplash.fullscreen = True
+
+android.permissions = INTERNET,CAMERA,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE,VIBRATE,ACCESS_FINE_LOCATION
+android.api = 33
 android.minapi = 21
-
-# --- Inne ustawienia ---
-osx.python_version = 3
-osx.kivy_version = 1.9.1
-
-# Możesz tu dodać inne opcje aplikacji, np. ikony:
-# icon.filename = %(source.dir)s/data/icon.png
-
+android.archs = armeabi-v7a,arm64-v8a
+android.build_tools_version = 34.0.0
+android.release = True
+android.sign = True
+android.keystore = %(source.dir)s/konrad.keystore
+android.keyalias = konradkey
+android.keystore_password = __WSTAW_HASLO__
+android.keyalias_password = __WSTAW_HASLO__
 
 [buildozer]
 log_level = 2
