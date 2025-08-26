@@ -13,8 +13,8 @@ android.permissions = INTERNET,CAMERA,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORA
 android.api = 33
 android.minapi = 21
 android.sdk = 33
-android.ndk = 23b
-android.ndk_api = 23
+android.ndk = 25b
+android.ndk_api = 25
 android.archs = armeabi-v7a,arm64-v8a
 
 [buildozer]
