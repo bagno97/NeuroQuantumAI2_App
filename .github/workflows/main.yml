@@ -42,25 +42,24 @@ jobs:
 
       - name: Download & prepare Android SDK/NDK 25b
         run: |
-          mkdir -p $ANDROIDSDK
-          cd $ANDROIDSDK
+          mkdir -p $ANDROIDSDK/cmdline-tools
+          cd $ANDROIDSDK/cmdline-tools
+
+          # Pobierz narzędzia SDK
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdtools.zip
           unzip -q cmdtools.zip
-          # unikamy przenoszenia samego katalogu w głąb siebie:
-          mv cmdline-tools cmdline-tools-old
-          mkdir -p cmdline-tools/latest
-          mv cmdline-tools-old/* cmdline-tools/latest/
-          rm -rf cmdline-tools-old cmdtools.zip
-          yes | cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROIDSDK \
+          rm cmdtools.zip
+
+          # Ustaw strukturę: cmdline-tools/latest/{bin,lib}
+          mv cmdline-tools latest
+
+          # Zainstaluj platform-tools, platformy, build-tools i NDK25b
+          yes | $ANDROIDSDK/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROIDSDK \
             "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.2.9519653"
 
-      - name: Link sdkmanager & avdmanager dla Buildozera
-        run: |
-          mkdir -p $ANDROIDSDK/tools/bin
-          ln -sfn $ANDROIDSDK/cmdline-tools/latest/bin/sdkmanager \
-                 $ANDROIDSDK/tools/bin/sdkmanager
-          ln -sfn $ANDROIDSDK/cmdline-tools/latest/bin/avdmanager \
-                 $ANDROIDSDK/tools/bin/avdmanager
+          # Skopiuj bin i lib do starego katalogu tools, którego Buildozer szuka
+          mkdir -p $ANDROIDSDK/tools
+          cp -R $ANDROIDSDK/cmdline-tools/latest/* $ANDROIDSDK/tools
 
       - name: Build debug APK
         run: |
