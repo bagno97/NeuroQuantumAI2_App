@@ -16,7 +16,7 @@ jobs:
       PATH: $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin:$HOME/.buildozer/android/platform/android-sdk/platform-tools:$PATH
 
     steps:
-      - name: Checkout repo using Git
+      - name: Checkout repo using Git (no tar)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
