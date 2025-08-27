@@ -1,74 +1,35 @@
-name: Kompilacja NeuroQuantumAI2 APK
+name: Build Android APK
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
-    env:
-      ANDROID_SDK_ROOT: $HOME/.buildozer/android/platform/android-sdk
-      ANDROID_NDK_HOME: $HOME/.buildozer/android/platform/android-sdk/ndk/25.2.9519653
-      P4A_USE_SYSTEM_LIBFFI: "1"
-      PATH: $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin:$HOME/.buildozer/android/platform/android-sdk/platform-tools:$PATH
+    runs-on: ubuntu-22.04
 
     steps:
-      - name: Checkout repo using Git (no tar)
+      - name: Checkout repo using Git
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
 
       - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            build-essential libc6-dev \
-            git zip unzip openjdk-17-jdk \
-            python3-dev python3-pip python3-setuptools \
-            libffi-dev libssl-dev libsqlite3-dev \
-            zlib1g-dev libjpeg-dev libfreetype6-dev \
-            autoconf automake libtool pkg-config
+            python3 python3-pip python3-setuptools git zip unzip \
+            openjdk-17-jdk build-essential libssl-dev libffi-dev \
+            libglu1-mesa libgles2-mesa-dev libgles1-mesa libjpeg-dev \
+            zlib1g-dev libpng-dev libfreetype6-dev
 
-      - name: Install Python packages
+      - name: Install Buildozer
         run: |
           pip install --upgrade pip
-          pip install cython buildozer setuptools==65.5.1
+          pip install buildozer cython
 
-      - name: Download & extract Android cmdline-tools
+      - name: Build APK
         run: |
-          SDK="$ANDROID_SDK_ROOT"
-          mkdir -p "$SDK"
-          cd "$SDK"
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline.zip
-          unzip -q cmdline.zip -d cmdline_tmp
-          rm cmdline.zip
-          mkdir -p cmdline-tools/latest
-          mv cmdline_tmp/cmdline-tools/* cmdline-tools/latest/
-          rm -rf cmdline_tmp
-
-      - name: Install SDK components & NDK 25b
-        run: |
-          yes | "$ANDROID_SDK_ROOT"/cmdline-tools/latest/bin/sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
-            "platform-tools" \
-            "platforms;android-33" \
-            "build-tools;33.0.2" \
-            "ndk;25.2.9519653"
-          mkdir -p "$ANDROID_SDK_ROOT"/tools/bin
-          cp "$ANDROID_SDK_ROOT"/cmdline-tools/latest/bin/* "$ANDROID_SDK_ROOT"/tools/bin/
-
-      - name: Build debug APK
-        run: buildozer android debug
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: NeuroQuantumAI-debug
-          path: bin/*.apk
+          buildozer android debug
