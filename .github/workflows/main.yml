@@ -4,26 +4,27 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
-  build-android:
+  build:
     runs-on: ubuntu-latest
 
     env:
-      ANDROID_NDK_API: 25
-      ANDROID_NDK_VER: "25b"
+      ANDROIDSDK: $HOME/.buildozer/android/platform/android-sdk
+      ANDROIDNDK: $HOME/.buildozer/android/platform/android-sdk/ndk/25.2.9519653
+      ANDROID_NDK_HOME: $HOME/.buildozer/android/platform/android-sdk/ndk/25.2.9519653
+      ANDROID_SDK_ROOT: $HOME/.buildozer/android/platform/android-sdk
+      P4A_USE_SYSTEM_LIBFFI: '1'
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python 3.11
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install system dependencies
         run: |
@@ -34,11 +35,36 @@ jobs:
             libffi-dev libssl-dev libsqlite3-dev zlib1g-dev libjpeg-dev libfreetype6-dev \
             autoconf automake libtool pkg-config
 
-      - name: Install Buildozer
+      - name: Install Cython & Buildozer
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install buildozer
+          pip install cython buildozer
 
-      - name: Run Android debug build
+      - name: Install Android SDK & NDK (r25b)
         run: |
-          buildozer --verbose android debug
+          mkdir -p $ANDROIDSDK
+          cd $ANDROIDSDK
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+          unzip -q cmdline-tools.zip
+          mkdir -p cmdline-tools/latest
+          mv cmdline-tools/* cmdline-tools/latest/
+          yes | cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROIDSDK \
+            "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.2.9519653"
+
+      - name: Fix sdkmanager & avdmanager path for Buildozer
+        run: |
+          mkdir -p $ANDROIDSDK/tools/bin
+          ln -sf $ANDROIDSDK/cmdline-tools/latest/bin/sdkmanager \
+                 $ANDROIDSDK/tools/bin/sdkmanager
+          ln -sf $ANDROIDSDK/cmdline-tools/latest/bin/avdmanager \
+                 $ANDROIDSDK/tools/bin/avdmanager
+
+      - name: Build debug APK
+        run: |
+          buildozer android debug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NeuroQuantumAI-debug
+          path: bin/*.apk
