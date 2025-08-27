@@ -48,22 +48,18 @@ jobs:
           mkdir -p "$SDK_ROOT"
           cd "$SDK_ROOT"
 
-          # Download command-line tools
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdtools.zip
-          unzip -q cmdtools.zip -d cmdline-tools
-          rm cmdtools.zip
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline.zip
+          unzip -q cmdline.zip -d cmdline-tools
+          rm cmdline.zip
 
-          # Move contents into cmdline-tools/latest
           mv cmdline-tools cmdline-temp
           mkdir -p cmdline-tools/latest
           mv cmdline-temp/* cmdline-tools/latest/
           rm -rf cmdline-temp
 
-          # Install SDK components and NDK 25b
           yes | cmdline-tools/latest/bin/sdkmanager --sdk_root="$SDK_ROOT" \
             "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.2.9519653"
 
-          # Copy sdkmanager & avdmanager into tools/bin as Buildozer expects
           mkdir -p "$SDK_ROOT/tools/bin"
           cp "$SDK_ROOT/cmdline-tools/latest/bin/"* "$SDK_ROOT/tools/bin/"
 
@@ -72,7 +68,7 @@ jobs:
           buildozer android debug
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: NeuroQuantumAI-debug
           path: bin/*.apk
