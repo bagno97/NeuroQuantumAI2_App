@@ -15,16 +15,16 @@ jobs:
       ANDROIDNDK: $HOME/.buildozer/android/platform/android-sdk/ndk/25.2.9519653
       ANDROID_NDK_HOME: $HOME/.buildozer/android/platform/android-sdk/ndk/25.2.9519653
       ANDROID_SDK_ROOT: $HOME/.buildozer/android/platform/android-sdk
-      P4A_USE_SYSTEM_LIBFFI: '1'
+      P4A_USE_SYSTEM_LIBFFI: "1"
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Python 3.11
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install system dependencies
         run: |
@@ -40,23 +40,26 @@ jobs:
           python3 -m pip install --upgrade pip
           pip install cython buildozer
 
-      - name: Install Android SDK & NDK (r25b)
+      - name: Download & prepare Android SDK/NDK 25b
         run: |
           mkdir -p $ANDROIDSDK
           cd $ANDROIDSDK
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
-          unzip -q cmdline-tools.zip
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdtools.zip
+          unzip -q cmdtools.zip
+          # unikamy przenoszenia samego katalogu w głąb siebie:
+          mv cmdline-tools cmdline-tools-old
           mkdir -p cmdline-tools/latest
-          mv cmdline-tools/* cmdline-tools/latest/
+          mv cmdline-tools-old/* cmdline-tools/latest/
+          rm -rf cmdline-tools-old cmdtools.zip
           yes | cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROIDSDK \
             "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.2.9519653"
 
-      - name: Fix sdkmanager & avdmanager path for Buildozer
+      - name: Link sdkmanager & avdmanager dla Buildozera
         run: |
           mkdir -p $ANDROIDSDK/tools/bin
-          ln -sf $ANDROIDSDK/cmdline-tools/latest/bin/sdkmanager \
+          ln -sfn $ANDROIDSDK/cmdline-tools/latest/bin/sdkmanager \
                  $ANDROIDSDK/tools/bin/sdkmanager
-          ln -sf $ANDROIDSDK/cmdline-tools/latest/bin/avdmanager \
+          ln -sfn $ANDROIDSDK/cmdline-tools/latest/bin/avdmanager \
                  $ANDROIDSDK/tools/bin/avdmanager
 
       - name: Build debug APK
