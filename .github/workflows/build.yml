@@ -2,8 +2,7 @@ name: Build Android APK
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -11,11 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      ANDROIDSDK: $HOME/.buildozer/android/platform/android-sdk
-      ANDROIDNDK: $HOME/.buildozer/android/platform/android-sdk/ndk/25.2.9519653
-      ANDROID_NDK_HOME: $HOME/.buildozer/android/platform/android-sdk/ndk/25.2.9519653
-      ANDROID_SDK_ROOT: $HOME/.buildozer/android/platform/android-sdk
-      P4A_USE_SYSTEM_LIBFFI: "1"
+      ANDROID_SDK_ROOT: ${{ runner.home }}/.buildozer/android/platform/android-sdk
+      ANDROID_NDK_HOME: ${{ runner.home }}/.buildozer/android/platform/android-sdk/ndk/25.2.9519653
+      PATH: ${{ runner.home }}/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin:${{ runner.home }}/.buildozer/android/platform/android-sdk/platform-tools:${{ env.PATH }}
 
     steps:
       - name: Checkout repository
@@ -24,9 +21,9 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
-      - name: Install system dependencies
+      - name: Install system packages
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -39,33 +36,39 @@ jobs:
 
       - name: Install Cython & Buildozer
         run: |
-          python3 -m pip install --upgrade pip
+          pip install --upgrade pip
           pip install cython buildozer
 
-      - name: Download & prepare Android SDK & NDK 25b
+      - name: Download & extract Android cmdline-tools
         run: |
-          SDK_ROOT="$ANDROIDSDK"
-          mkdir -p "$SDK_ROOT"
-          cd "$SDK_ROOT"
-
+          SDK="$ANDROID_SDK_ROOT"
+          mkdir -p "$SDK"
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline.zip
-          unzip -q cmdline.zip -d cmdline-tools
+          mkdir cmdline_tmp
+          unzip -q cmdline.zip -d cmdline_tmp
           rm cmdline.zip
 
-          mv cmdline-tools cmdline-temp
-          mkdir -p cmdline-tools/latest
-          mv cmdline-temp/* cmdline-tools/latest/
-          rm -rf cmdline-temp
+          # Przenieś do cmdline-tools/latest
+          mkdir -p "$SDK/cmdline-tools/latest"
+          mv cmdline_tmp/cmdline-tools/* "$SDK/cmdline-tools/latest/"
+          rm -rf cmdline_tmp
 
-          yes | cmdline-tools/latest/bin/sdkmanager --sdk_root="$SDK_ROOT" \
-            "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.2.9519653"
+      - name: Install SDK platforms, build-tools & NDK 25b
+        run: |
+          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+            --sdk_root="$ANDROID_SDK_ROOT" \
+            "platform-tools" \
+            "platforms;android-33" \
+            "build-tools;33.0.2" \
+            "ndk;25.2.9519653"
 
-          mkdir -p "$SDK_ROOT/tools/bin"
-          cp "$SDK_ROOT/cmdline-tools/latest/bin/"* "$SDK_ROOT/tools/bin/"
+      - name: Symlink sdkmanager & avdmanager for Buildozer
+        run: |
+          mkdir -p "$ANDROID_SDK_ROOT/tools/bin"
+          cp "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/"* "$ANDROID_SDK_ROOT/tools/bin/"
 
       - name: Build debug APK
-        run: |
-          buildozer android debug
+        run: buildozer android debug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
