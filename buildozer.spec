@@ -1,26 +1,43 @@
 [app]
+# Nazwa aplikacji
 title = NeuroQuantumAI
-package.name = neuroquantuma3_app
-package.domain = org.konrad
-source.dir = .
-source.include_exts = py,png,jpg,kv,atlas,json,ttf,ttc,ini,txt,xml
-version = 1.0.0
-requirements = python3,kivy==2.1.0,kivymd,requests,pillow,certifi,urllib3,chardet,idna,setuptools
-orientation = portrait
-fullscreen = 1
-hide_statusbar = 0
-android.permissions = INTERNET,CAMERA,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE,ACCESS_FINE_LOCATION
-android.api = 33
-android.minapi = 21
-android.sdk = 33
-android.ndk = 25b
-android.ndk_api = 25
-android.archs = armeabi-v7a,arm64-v8a
+package.name = neuroquantumai
+package.domain = org.neuroquantumai
 
-[buildozer]
-build_dir = ./.buildozer
-bin_dir = ./bin
-log_level = 2
-debug = 1
-use_system_libs = True
-warn_on_root = 1
+# Główna klasa startowa
+source.dir = .
+source.include_exts = py,png,jpg,kv,atlas
+
+# Plik startowy
+main.py = main.py
+
+# Ikona aplikacji
+icon.filename = icon.png
+
+# Wersja aplikacji
+version = 1.0
+
+# Format aplikacji
+fullscreen = 0
+
+# Dołącz pliki danych (jeśli chcesz pamięci startowe w apk)
+# Jeżeli nie potrzebujesz -> zostaw puste
+source.include_patterns = ai_memory.txt,emotion_memory.txt,long_memory.txt,conversation_history.json,knowledge_map.json,network_map.json,mrmory.json
+
+# Wymagane zależności
+requirements = python3,kivy,plyer,cython
+
+# Minimalna wersja Androida
+android.minapi = 21
+android.sdk = 31
+android.ndk = 23b
+android.ndk_api = 21
+
+# Orientacja
+orientation = portrait
+
+# Uprawnienia Androida
+android.permissions = INTERNET
+
+# Nazwa paczki wyjściowej
+package.version = 1
