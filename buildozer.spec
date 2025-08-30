@@ -1,43 +1,34 @@
 [app]
-# Nazwa aplikacji
 title = NeuroQuantumAI
 package.name = neuroquantumai
-package.domain = org.neuroquantumai
-
-# Główna klasa startowa
+package.domain = org.neuroquantum
 source.dir = .
-source.include_exts = py,png,jpg,kv,atlas
+source.include_exts = py,kv,png,jpg,json,txt,ttf,ttc,ini,xml,atlas
+# jeśli chcesz dołączyć startowe pliki pamięci do APK:
+# source.include_patterns = ai_memory.txt,emotion_memory.txt,long_memory.txt,conversation_history.json,knowledge_map.json,network_map.json,mrmory.json,connections.json
 
-# Plik startowy
-main.py = main.py
-
-# Ikona aplikacji
+version = 1.0.0
+orientation = portrait
+fullscreen = 1
 icon.filename = icon.png
 
-# Wersja aplikacji
-version = 1.0
+# ⬇️ Zależności potrzebne *rzeczywiście* w projekcie
+requirements = python3,kivy==2.2.1,plyer
 
-# Format aplikacji
-fullscreen = 0
+# Uprawnienia wymagane przez TaskExecutor (plyer: camera/gps/filechooser/tts/notification)
+android.permissions = INTERNET,CAMERA,READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE,ACCESS_FINE_LOCATION,WAKE_LOCK
 
-# Dołącz pliki danych (jeśli chcesz pamięci startowe w apk)
-# Jeżeli nie potrzebujesz -> zostaw puste
-source.include_patterns = ai_memory.txt,emotion_memory.txt,long_memory.txt,conversation_history.json,knowledge_map.json,network_map.json,mrmory.json
-
-# Wymagane zależności
-requirements = python3,kivy,plyer,cython
-
-# Minimalna wersja Androida
+# Android / NDK — zgodne z Kivy 2.2.1
+android.api = 33
 android.minapi = 21
-android.sdk = 31
-android.ndk = 23b
+android.sdk = 33
+android.ndk = 25b
 android.ndk_api = 21
+android.archs = armeabi-v7a,arm64-v8a
 
-# Orientacja
-orientation = portrait
-
-# Uprawnienia Androida
-android.permissions = INTERNET
-
-# Nazwa paczki wyjściowej
-package.version = 1
+# Logowanie / katalogi wyjściowe
+[buildozer]
+log_level = 2
+bin_dir = ./bin
+build_dir = ./.buildozer
+warn_on_root = 0
