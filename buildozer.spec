@@ -1,34 +1,44 @@
 [app]
-title = NeuroQuantumAI
-package.name = neuroquantumai
-package.domain = org.neuroquantum
+# Nazwa aplikacji (to co widać na telefonie)
+title = MyKivyApp
+
+# Nazwa paczki (unikalna, np. com.twojefirma.aplikacja)
+package.name = mykivyapp
+package.domain = org.example
+
+# Główny plik aplikacji (musi być w repo)
 source.dir = .
-source.include_exts = py,kv,png,jpg,json,txt,ttf,ttc,ini,xml,atlas
-# jeśli chcesz dołączyć startowe pliki pamięci do APK:
-# source.include_patterns = ai_memory.txt,emotion_memory.txt,long_memory.txt,conversation_history.json,knowledge_map.json,network_map.json,mrmory.json,connections.json
+source.include_exts = py,png,jpg,kv,atlas
 
-version = 1.0.0
+# Ikony i splash (opcjonalne)
+icon.filename = %(source.dir)s/data/icon.png
+# presplash.filename = %(source.dir)s/data/presplash.png
+
+# Główne entry point
+entrypoint = main.py
+
+# Typ kompilacji: debug albo release
+version = 0.1
+requirements = python3,kivy
+
+# Target Android
+osx.kivy_version = 2.3.0
 orientation = portrait
-fullscreen = 1
-icon.filename = icon.png
 
-# ⬇️ Zależności potrzebne *rzeczywiście* w projekcie
-requirements = python3,kivy==2.2.1,plyer
-
-# Uprawnienia wymagane przez TaskExecutor (plyer: camera/gps/filechooser/tts/notification)
-android.permissions = INTERNET,CAMERA,READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE,ACCESS_FINE_LOCATION,WAKE_LOCK
-
-# Android / NDK — zgodne z Kivy 2.2.1
-android.api = 33
+# Minimalna wersja Androida
 android.minapi = 21
 android.sdk = 33
 android.ndk = 25b
-android.ndk_api = 21
-android.archs = armeabi-v7a,arm64-v8a
+android.archs = armeabi-v7a, arm64-v8a
 
-# Logowanie / katalogi wyjściowe
+# Uprawnienia (jeśli chcesz np. Internet)
+android.permissions = INTERNET
+
 [buildozer]
 log_level = 2
-bin_dir = ./bin
-build_dir = ./.buildozer
-warn_on_root = 0
+warn_on_root = 1
+
+[app.android]
+# Tutaj można dodać własne zależności pip
+p4a.local_recipes = 
+p4a.branch = master
