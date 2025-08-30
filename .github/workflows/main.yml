@@ -2,40 +2,31 @@ name: Build Android APK
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
+    # Uruchamiamy kroki wewnątrz gotowego obrazu Dockera z Buildozerem + Android SDK/NDK
+    container:
+      image: kivy/buildozer:latest
+      env:
+        BUILDOZER_WARN_ON_ROOT: "0"
+
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
+      - name: Show Buildozer version
+        run: buildozer --version
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential git zip unzip openjdk-17-jdk python3-pip
-          pip install --upgrade pip
-          pip install cython
-
-      - name: Install Buildozer
-        run: |
-          pip install buildozer
-
-      - name: Build APK
-        run: |
-          buildozer android debug
+      - name: Build debug APK
+        run: buildozer android debug
 
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: NeuroQuantumAI-APK
           path: bin/*.apk
