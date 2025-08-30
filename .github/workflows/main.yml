@@ -2,36 +2,40 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
-    steps: 
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
       - name: Install dependencies
         run: |
           sudo apt update
           sudo apt install -y \
-            python3 python3-pip python3-setuptools git zip \
-            openjdk-17-jdk unzip wget curl libffi-dev \
-            libssl-dev libsqlite3-dev libjpeg-dev libpng-dev \
-            libc6-dev pkg-config autoconf automake \
-            build-essential
+            python3 python3-pip python3-setuptools \
+            openjdk-17-jdk unzip git \
+            libncurses5 libstdc++6 libffi-dev \
+            libssl-dev autoconf libtool pkg-config zlib1g-dev \
+            cmake
 
+      - name: Install buildozer & Cython
+        run: |
           pip3 install --upgrade pip
-          pip3 install buildozer cython
+          pip3 install cython
+          pip3 install buildozer
 
-      - name: Build debug APK
+      - name: Build APK
         run: |
           buildozer android debug
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
-          name: NeuroQuantumAI-APK
+          name: app-release
           path: bin/*.apk
