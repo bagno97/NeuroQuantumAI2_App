@@ -7,23 +7,28 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
-    # Uruchamiamy kroki wewnątrz gotowego obrazu Dockera z Buildozerem + Android SDK/NDK
-    container:
-      image: kivy/buildozer:latest
-      env:
-        BUILDOZER_WARN_ON_ROOT: "0"
+    runs-on: ubuntu-20.04
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Show Buildozer version
-        run: buildozer --version
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            python3 python3-pip python3-setuptools git zip \
+            openjdk-17-jdk unzip wget curl libffi-dev \
+            libssl-dev libsqlite3-dev libjpeg-dev libpng-dev \
+            libc6-dev pkg-config autoconf automake \
+            build-essential
+
+          pip3 install --upgrade pip
+          pip3 install buildozer cython
 
       - name: Build debug APK
-        run: buildozer android debug
+        run: |
+          buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
