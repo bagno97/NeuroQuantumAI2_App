@@ -1,6 +1,20 @@
-# 🚀 Nazwa Projektu
+# 🧠 NeuroQuantumAI - Quantum Neural Networks
 
-Krótki opis projektu, co robi i dlaczego warto z niego korzystać.
+[![Build NeuroQuantumAI Android APK](https://github.com/[USERNAME]/NeuroQuantumAI/actions/workflows/build-apk.yml/badge.svg)](https://github.com/[USERNAME]/NeuroQuantumAI/actions/workflows/build-apk.yml)
+[![Build All Platforms](https://github.com/[USERNAME]/NeuroQuantumAI/actions/workflows/build-all-platforms.yml/badge.svg)](https://github.com/[USERNAME]/NeuroQuantumAI/actions/workflows/build-all-platforms.yml)
+
+**Zaawansowany system AI z quantum neural networks, neurogenesis i możliwościami samomodyfikacji.**
+
+## 🚀 **Automatyczne budowanie przez GitHub Actions**
+
+### **📱 Pobierz najnowszą wersję:**
+- **[Releases](../../releases)** - Automatycznie zbudowane APK, Windows i Web
+- **[Actions](../../actions)** - Zobacz proces budowania na żywo
+
+### **🎯 Obsługiwane platformy:**
+- **📱 Android APK** - Samsung Galaxy A35 5G (i inne Android 7.0+)
+- **💻 Windows App** - Windows 10/11 (Electron)
+- **🌐 Web PWA** - Każda nowoczesna przeglądarka
 
 ---
 

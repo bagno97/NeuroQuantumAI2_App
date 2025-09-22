@@ -1,0 +1,291 @@
+name: Build NeuroQuantumAI - All Platforms
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+        - release
+        - debug
+
+jobs:
+  build-android-apk:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Build NeuroQuantumAI APK
+      run: |
+        echo "🧠 Building NeuroQuantumAI APK..."
+        echo "📱 Target: Samsung Galaxy A35 5G"
+        echo "🤖 AI Systems: 9 modules"
+        
+        python create_valid_apk.py
+        
+        # Verify APK was created
+        if [ -f "NeuroQuantumAI-Valid-v1.0.0.apk" ]; then
+          echo "✅ APK created successfully"
+          ls -la NeuroQuantumAI-Valid-v1.0.0.apk
+        else
+          echo "❌ APK creation failed"
+          exit 1
+        fi
+    
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: NeuroQuantumAI-Android-APK
+        path: NeuroQuantumAI-Valid-v1.0.0.apk
+        retention-days: 90
+
+  build-windows-app:
+    name: Build Windows Application
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Build Windows App
+      run: |
+        echo "💻 Building NeuroQuantumAI for Windows..."
+        cd NeuroQuantumAI-Windows
+        npm install
+        npm run build-win
+    
+    - name: Upload Windows App
+      uses: actions/upload-artifact@v4
+      with:
+        name: NeuroQuantumAI-Windows-App
+        path: NeuroQuantumAI-Windows/dist/*.exe
+        retention-days: 90
+
+  build-web-app:
+    name: Build Web Application
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Create Web Package
+      run: |
+        echo "🌐 Building NeuroQuantumAI Web App..."
+        
+        # Create web package
+        mkdir -p web-app
+        cp NeuroQuantumAI_Android_Installer.html web-app/index.html
+        cp quantum_neural_foundation.js web-app/
+        cp neurogenesis_system.js web-app/
+        cp self_modification_simulator.js web-app/
+        cp advanced_ai_system.js web-app/
+        cp task_classification_system.js web-app/
+        cp intelligent_task_engine.js web-app/
+        cp advanced_reasoning_engine.js web-app/
+        cp persistent_neural_storage.js web-app/
+        cp wake_lock_manager.js web-app/
+        cp manifest.json web-app/
+        cp sw.js web-app/
+        cp icon-*.png web-app/
+        
+        # Create package
+        zip -r NeuroQuantumAI-Web-App.zip web-app/
+        
+        echo "✅ Web app package created"
+        ls -la NeuroQuantumAI-Web-App.zip
+    
+    - name: Upload Web App
+      uses: actions/upload-artifact@v4
+      with:
+        name: NeuroQuantumAI-Web-App
+        path: NeuroQuantumAI-Web-App.zip
+        retention-days: 90
+
+  create-github-release:
+    name: Create GitHub Release
+    needs: [build-android-apk, build-windows-app, build-web-app]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: ./release-assets/
+    
+    - name: Prepare release assets
+      run: |
+        echo "📦 Preparing release assets..."
+        ls -la release-assets/
+        
+        # Move files to root level
+        find release-assets/ -type f -name "*.apk" -exec cp {} ./ \;
+        find release-assets/ -type f -name "*.exe" -exec cp {} ./ \;
+        find release-assets/ -type f -name "*.zip" -exec cp {} ./ \;
+        
+        echo "✅ Release assets prepared:"
+        ls -la *.apk *.exe *.zip 2>/dev/null || echo "Some file types not found"
+    
+    - name: Generate release notes
+      run: |
+        cat > RELEASE_NOTES.md << 'EOF'
+        # 🧠 NeuroQuantumAI - Quantum Neural Networks
+        
+        ## 🚀 **Najnowsza wersja z wszystkimi systemami AI!**
+        
+        ### **📱 Android APK (Samsung Galaxy A35 5G)**
+        - `NeuroQuantumAI-Valid-v1.0.0.apk` - Główna aplikacja Android
+        - Rozmiar: ~22KB
+        - Wszystkie 9 systemów AI wbudowane
+        
+        ### **💻 Windows Application**
+        - `NeuroQuantumAI-Setup.exe` - Installer dla Windows 10/11
+        - Natywna aplikacja Electron
+        - Pełna funkcjonalność desktop
+        
+        ### **🌐 Web Application**
+        - `NeuroQuantumAI-Web-App.zip` - PWA do hostowania
+        - Działa w każdej przeglądarce
+        - Instalowalna jako PWA
+        
+        ## 🧠 **Zawarte systemy AI:**
+        
+        ✅ **Quantum Neural Foundation** - neurony kwantowe z superpozycją stanów
+        ✅ **Neurogenesis System** - tworzenie nowych neuronów (max 1000)
+        ✅ **Self-Modification Simulator** - bezpieczna samomodyfikacja w wirtualnym środowisku
+        ✅ **Advanced Reasoning Engine** - 6-wymiarowe rozumowanie (logiczne, emocjonalne, kreatywne, praktyczne, etyczne, strategiczne)
+        ✅ **Task Classification System** - klasyfikacja zadań w 7 kategoriach z poziomami złożoności 1-10
+        ✅ **Intelligent Task Engine** - 6-fazowe przetwarzanie złożonych zadań z kontekst awareness
+        ✅ **Persistent Neural Storage** - szyfrowane przechowywanie danych z kompresją i automatycznym backup
+        ✅ **Advanced AI System** - 4 poziomy bezpieczeństwa (SAFE, MONITORED, RESTRICTED, FORBIDDEN)
+        ✅ **Wake Lock Manager** - działanie w tle z automatycznym zarządzaniem zasobami
+        
+        ## 📋 **Instalacja:**
+        
+        ### **Android (Samsung Galaxy A35 5G):**
+        1. Pobierz `NeuroQuantumAI-Valid-v1.0.0.apk`
+        2. Włącz "Nieznane źródła" w ustawieniach bezpieczeństwa
+        3. Zainstaluj APK
+        4. Uruchom NeuroQuantumAI z ekranu głównego
+        
+        ### **Windows 10/11:**
+        1. Pobierz `NeuroQuantumAI-Setup.exe`
+        2. Uruchom installer
+        3. Postępuj zgodnie z instrukcjami
+        4. Uruchom z menu Start lub pulpitu
+        
+        ### **Web/PWA:**
+        1. Pobierz `NeuroQuantumAI-Web-App.zip`
+        2. Rozpakuj na serwerze web
+        3. Otwórz `index.html` w przeglądarce
+        4. Zainstaluj jako PWA (opcjonalnie)
+        
+        ## 🎯 **Funkcje:**
+        
+        - **Inteligentny chat** z zaawansowanymi systemami AI
+        - **Quantum neural processing** z superpozycją stanów
+        - **Neurogenesis** - tworzenie neuronów w czasie rzeczywistym
+        - **Self-modification** - bezpieczne dostosowywanie algorytmów
+        - **Multi-dimensional reasoning** - analiza z 6 perspektyw
+        - **Task classification** - automatyczne rozpoznawanie typu zadania
+        - **Persistent learning** - zapamiętywanie preferencji użytkownika
+        - **Background processing** - działanie w tle
+        - **Encrypted storage** - bezpieczne przechowywanie danych
+        
+        ## 🔧 **Wymagania systemowe:**
+        
+        ### **Android:**
+        - Android 7.0+ (API 24+)
+        - 50MB wolnego miejsca
+        - Połączenie internetowe (zalecane)
+        
+        ### **Windows:**
+        - Windows 10 (1903+) lub Windows 11
+        - 4GB RAM (zalecane 8GB)
+        - 200MB wolnego miejsca
+        - Połączenie internetowe
+        
+        ### **Web:**
+        - Nowoczesna przeglądarka (Chrome 80+, Firefox 75+, Safari 13+)
+        - JavaScript włączony
+        - 50MB pamięci RAM
+        
+        ---
+        
+        **🤖 Automatycznie zbudowane przez GitHub Actions**
+        **📅 Data: $(date)**
+        **🔗 Repozytorium: https://github.com/[USERNAME]/NeuroQuantumAI**
+        EOF
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.ref_name }}
+        name: NeuroQuantumAI ${{ github.ref_name }}
+        body_path: RELEASE_NOTES.md
+        files: |
+          *.apk
+          *.exe
+          *.zip
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy-web-demo:
+    name: Deploy Web Demo
+    needs: [build-web-app]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Pages
+      uses: actions/configure-pages@v3
+    
+    - name: Download web app
+      uses: actions/download-artifact@v4
+      with:
+        name: NeuroQuantumAI-Web-App
+        path: ./
+    
+    - name: Extract web app
+      run: |
+        unzip NeuroQuantumAI-Web-App.zip
+        mv web-app/* ./
+        ls -la
+    
+    - name: Upload to Pages
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: ./
+    
+    - name: Deploy to Pages
+      uses: actions/deploy-pages@v2
+      id: deployment
